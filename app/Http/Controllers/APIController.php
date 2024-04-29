@@ -70,34 +70,21 @@ class APIController extends Controller
         $data = $request->all();
 
         /* Turn-Over */
-        DB::statement('CALL psTurnover_Insert(?,?,?,?,?)', [
-            $data['code_salle'],
-            $data['turn_over'],
-            $data['userID'],
-            $data['organisationID'],
-            $data['cycle']
-        ]);
-        /* Cagnotte */
-        DB::statement('CALL psCagnotte_Insert(?,?,?,?,?,?)', [
+        DB::statement('CALL psParametre_Update(?,?,?,?,?,?,?,?,?,?,?,?)', [
             $data['code_salle'],
             $data['date_cagnotte'],
             $data['lots'],
             $data['actif'],
             $data['organisationID'],
-            $data['userID']
-        ]);
-        /* Bonus */
-        DB::statement('CALL psBonus_Insert(?,?,?,?,?,?,?,?,?)', [
-            $data['code_salle'],
+            $data['userID'],
             $data['jackpot_min'],
             $data['jackpot_max'],
             $data['jackpot_rate'],
             $data['montant_bonus'],
-            $data['organisationID'],
-            $data['userID'],
-            $data['lots'],
-            $data['date_cagnotte']
+            $data['turn_over'],
+            $data['cycle']
         ]);
+       
         return response()->json(['success' => true]);
     }
 
