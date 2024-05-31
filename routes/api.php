@@ -45,6 +45,22 @@ Route::post('salleInsert', [APIController::class, 'salleInsert'])->name('salleIn
 Route::post('paramSalleInsert', [APIController::class, 'paramSalleInsert'])->name('paramSalleInsert');
 
 
+Route::post('insertMise', [APIController::class, 'insertMise'])->name('insertMise');
+
+/* ************************************* 31/05/2024 ********************************************* */
+
+Route::post('algorithmeDistribution', [APIController::class, 'algorithmeDistribution'])->name('algorithmeDistribution');
+Route::post('tirageInsert', [APIController::class, 'tirageInsert'])->name('tirageInsert');
+
+
+Route::get('dernierstirages/{code_salle}', [APIController::class, 'dernierstirages']);
+Route::get('bouleslesplustirees/{code_salle}', [APIController::class, 'bouleslesplustirees']);
+Route::get('bouleslesmoinstirees/{code_salle}', [APIController::class, 'bouleslesmoinstirees']);
+Route::get('derniersmultiplicateurs/{code_salle}', [APIController::class, 'derniersmultiplicateurs']);
+Route::get('entetecaisse/{code_salle}', [APIController::class, 'entetecaisse']);
+
+/* ************************************* 31/05/2024 ********************************************* */
+
 
 
 //API Controller

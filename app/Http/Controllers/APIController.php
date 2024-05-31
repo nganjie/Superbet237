@@ -61,7 +61,7 @@ class APIController extends Controller
             $data['libelle'],
             $data['description']
         ]);
-       
+
         return response()->json(['success' => true]);
     }
 
@@ -84,9 +84,93 @@ class APIController extends Controller
             $data['turn_over'],
             $data['cycle']
         ]);
-       
+
         return response()->json(['success' => true]);
     }
+
+
+    public function insertMise(Request $request)
+    {
+        $data = $request->all();
+
+        $code = DB::statement('CALL psTicket_Insert(?,?,?,?,?,?,?)', [
+            $data['code_salle'],
+            $data['code_option'],
+            $data['montant'],
+            $data['nbtirage'],
+            $data['userID'],
+            $data['boules'],
+            $data['avecmultiplicateur'],
+
+        ]);
+
+        return response()->json($code);
+    }
+
+        
+/* ************************************* 31/05/2024 ********************************************* */
+
+public function algorithmeDistribution(Request $request)
+{
+    $data = $request->all();
+
+    $result = DB::select('CALL psAlgoDistribution(?,?)', [
+        $data['code_salle'],
+        $data['tirageID'],
+        
+    ]);
+
+    return response()->json($result);
+}
+
+public function tirageInsert(Request $request)
+{
+    $data = $request->all();
+
+    DB::statement('CALL psTirage_Insert(?,?,?)', [
+        $data['tirageID'],
+        $data['codeSalle'],
+        $data['dateDebut'],
+
+    ]);
+
+    return response()->json(['success' => true]);
+}
+
+public function dernierstirages(Request $request, $code_salle)
+{
+    $result = DB::select('CALL psList_DerniersTirage(?)', [$code_salle]);
+    return response()->json($result);
+}
+
+public function bouleslesplustirees(Request $request, $code_salle)
+{
+    $result = DB::select('CALL psList_BoulesLesPlusTirees(?)', [$code_salle]);
+    return response()->json($result);
+}
+
+public function bouleslesmoinstirees(Request $request, $code_salle)
+{
+    $result = DB::select('CALL psList_BoulesLesMoinsTirees(?)', [$code_salle]);
+    return response()->json($result);
+}
+
+public function derniersmultiplicateurs(Request $request, $code_salle)
+{
+    $result = DB::select('CALL psList_DerniersMultiplicateurs(?)', [$code_salle]);
+    return response()->json($result);
+}
+
+public function entetecaisse(Request $request, $code_salle)
+{
+    $result = DB::select('CALL psList_EnteteCaisse(?)', [$code_salle]);
+    return response()->json($result);
+}
+
+
+/* ************************************* 31/05/2024 ********************************************* */
+
+
 
 
 
@@ -296,7 +380,7 @@ class APIController extends Controller
         $client = new Client();
         foreach ($phoneNumbers as $phoneNumber) {
             $cleanPhoneNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
-        
+
             if (strlen($cleanPhoneNumber) === 9) {
                 $response = $client->post('https://app.techsoft-sms.com/api/v3/sms/send', [
                     'headers' => [
@@ -956,7 +1040,7 @@ class APIController extends Controller
         return response()->json($parcoursAcademique);
     }
 
-   
+
     public function getAllPromotionByParcAPI(Request $request, $idparc)
     {
         $promotionByParc = DB::select('CALL psPromotionByParc(?)', [$idparc]);
@@ -1184,7 +1268,7 @@ class APIController extends Controller
     {
         $coursProgrammeListByAuditeur = DB::select('CALL pscoursprogramme_ListByAuditeur(?,?)', [$idauditeur, $limit]);
         return response()->json($coursProgrammeListByAuditeur);
-    }//----------------------------------------------------------------------------------------
+    } //----------------------------------------------------------------------------------------
     public function auditeurNotesPersoList(Request $request, $idauditeur, $limit)
     {
         $auditeurNotesPersoList = DB::select('CALL psAuditeursNotesPerso_List(?,?)', [$idauditeur, $limit]);
@@ -1199,44 +1283,44 @@ class APIController extends Controller
         });
 
         return response()->json($decryptedAuditeurs);
-    }//----------------------------------------------------------------------------------------
+    } //----------------------------------------------------------------------------------------
 
     public function auditeurAbsencesList(Request $request, $idauditeur)
     {
         $auditeurAbsencesList = DB::select('CALL psAssiduite_ListAbsencesByAuditeur(?)', [$idauditeur]);
         return response()->json($auditeurAbsencesList);
-    }//----------------------------------------------------------------------------------------
+    } //----------------------------------------------------------------------------------------
 
 
     public function devoirUeByIdEns(Request $request, $idparcours, $idregroupements, $idens)
     {
         $devoirUeByIdEns = DB::select('CALL psDevoir_UeByIdEns(?,?,?)', [$idparcours, $idregroupements, $idens]);
         return response()->json($devoirUeByIdEns);
-    }//----------------------------------------------------------------------------------------
+    } //----------------------------------------------------------------------------------------
 
 
     public function ressourceDevoirsListByAuditeur(Request $request, $idauditeur, $limit)
     {
         $ressourceDevoirsListByAuditeur = DB::select('CALL psRessourceDevoirs_ListByAuditeur(?,?)', [$idauditeur, $limit]);
         return response()->json($ressourceDevoirsListByAuditeur);
-    }//----------------------------------------------------------------------------------------
+    } //----------------------------------------------------------------------------------------
     public function ressourceListByAuditeur(Request $request, $idauditeur, $limit)
     {
         $ressourceListByAuditeur = DB::select('CALL psRessource_ListByAuditeur(?,?)', [$idauditeur, $limit]);
         return response()->json($ressourceListByAuditeur);
-    }//----------------------------------------------------------------------------------------
+    } //----------------------------------------------------------------------------------------
 
     public function listUeByRegEns(Request $request, $idparcours, $idens)
     {
         $listUeByRegEns = DB::select('CALL psUeByIdEns_ListByParcours(?,?)', [$idparcours, $idens]);
         return response()->json($listUeByRegEns);
-    }//----------------------------------------------------------------------------------------
+    } //----------------------------------------------------------------------------------------
 
     public function listCoursParEns(Request $request, $idparcours, $idregroupements, $idue, $idens)
     {
         $listCoursParEns = DB::select('CALL pscoursprogramme_ListByEns(?,?,?,?)', [$idparcours, $idregroupements, $idue, $idens]);
         return response()->json($listCoursParEns);
-    }//----------------------------------------------------------------------------------------
+    } //----------------------------------------------------------------------------------------
 
 
 
@@ -1259,7 +1343,7 @@ class APIController extends Controller
             $data['lien'],
             $data['idens'],
         ]);
-        
+
 
         $users = DB::select('CALL psAuditeurByIdreg(?)', [$data['idregroupements']]);
 
@@ -1564,6 +1648,6 @@ class APIController extends Controller
         });
 
         return response()->json($decryptedAuditeurs);
-    }//----------------------------------------------------------------------------------------
+    } //----------------------------------------------------------------------------------------
 
 }
