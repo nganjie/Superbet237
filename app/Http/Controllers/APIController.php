@@ -57,7 +57,7 @@ class APIController extends Controller
         $data = $request->all();
         DB::statement('CALL psSalle_Insert(?,?,?,?)', [
             $data['userID'],
-            $data['code_salle'],
+            $data['organisationID'],
             $data['libelle'],
             $data['description']
         ]);
@@ -70,19 +70,27 @@ class APIController extends Controller
         $data = $request->all();
 
         /* Turn-Over */
-        DB::statement('CALL psParametre_Update(?,?,?,?,?,?,?,?,?,?,?,?)', [
+        DB::statement('CALL psBonus_Insert(?,?,?,?,?,?,?,?,?,?,?,?)', [
             $data['code_salle'],
-            $data['date_cagnotte'],
-            $data['lots'],
-            $data['actif'],
-            $data['organisationID'],
-            $data['userID'],
             $data['jackpot_min'],
             $data['jackpot_max'],
+
             $data['jackpot_rate'],
-            $data['montant_bonus'],
+            $data['megajackpot_min'],
+            $data['megajackpot_max'],
+
+            $data['megajackpot_rate'],
+            // $data['montant_bonus'],
             $data['turn_over'],
-            $data['cycle']
+            $data['cycle'],
+
+            $data['organisationID'],
+            $data['userID'],
+            $data['frequence'],
+           
+           
+            //$data['lots'],
+            //$data['date_cagnotte'],
         ]);
 
         return response()->json(['success' => true]);
@@ -93,7 +101,7 @@ class APIController extends Controller
     {
         $data = $request->all();
 
-        $code = DB::statement('CALL psTicket_Insert(?,?,?,?,?,?,?)', [
+        $code = DB::select('CALL psTicket_Insert(?,?,?,?,?,?,?)', [
             $data['code_salle'],
             $data['code_option'],
             $data['montant'],
@@ -107,68 +115,163 @@ class APIController extends Controller
         return response()->json($code);
     }
 
-        
-/* ************************************* 31/05/2024 ********************************************* */
 
-public function algorithmeDistribution(Request $request)
-{
-    $data = $request->all();
+    /* ****************************************************** 31/05/2024 ****************************************************** */
 
-    $result = DB::select('CALL psAlgoDistribution(?,?)', [
-        $data['code_salle'],
-        $data['tirageID'],
-        
-    ]);
+    public function algorithmeDistribution(Request $request, $code_salle, $tirageID)
+    {
+        $result = DB::select('CALL psAlgorithmeDistribution(?,?)', [$code_salle, $tirageID]);
+        return response()->json($result);
+    }
 
-    return response()->json($result);
-}
+    public function tirageInsert(Request $request)
+    {
+        $data = $request->all();
 
-public function tirageInsert(Request $request)
-{
-    $data = $request->all();
+        DB::statement('CALL psTirage_Insert(?,?,?)', [
+            $data['tirageID'],
+            $data['codeSalle'],
+            $data['dateDebut'],
 
-    DB::statement('CALL psTirage_Insert(?,?,?)', [
-        $data['tirageID'],
-        $data['codeSalle'],
-        $data['dateDebut'],
+        ]);
 
-    ]);
+        return response()->json(['success' => true]);
+    }
 
-    return response()->json(['success' => true]);
-}
+    public function dernierstirages(Request $request, $code_salle)
+    {
+        $result = DB::select('CALL psList_DerniersTirage(?)', [$code_salle]);
+        return response()->json($result);
+    }
 
-public function dernierstirages(Request $request, $code_salle)
-{
-    $result = DB::select('CALL psList_DerniersTirage(?)', [$code_salle]);
-    return response()->json($result);
-}
+    public function bouleslesplustirees(Request $request, $code_salle)
+    {
+        $result = DB::select('CALL psList_BoulesLesPlusTirees(?)', [$code_salle]);
+        return response()->json($result);
+    }
 
-public function bouleslesplustirees(Request $request, $code_salle)
-{
-    $result = DB::select('CALL psList_BoulesLesPlusTirees(?)', [$code_salle]);
-    return response()->json($result);
-}
+    public function bouleslesmoinstirees(Request $request, $code_salle)
+    {
+        $result = DB::select('CALL psList_BoulesLesMoinsTirees(?)', [$code_salle]);
+        return response()->json($result);
+    }
 
-public function bouleslesmoinstirees(Request $request, $code_salle)
-{
-    $result = DB::select('CALL psList_BoulesLesMoinsTirees(?)', [$code_salle]);
-    return response()->json($result);
-}
+    public function derniersmultiplicateurs(Request $request, $code_salle)
+    {
+        $result = DB::select('CALL psList_DerniersMultiplicateurs(?)', [$code_salle]);
+        return response()->json($result);
+    }
 
-public function derniersmultiplicateurs(Request $request, $code_salle)
-{
-    $result = DB::select('CALL psList_DerniersMultiplicateurs(?)', [$code_salle]);
-    return response()->json($result);
-}
-
-public function entetecaisse(Request $request, $code_salle)
-{
-    $result = DB::select('CALL psList_EnteteCaisse(?)', [$code_salle]);
-    return response()->json($result);
-}
+    public function entetecaisse(Request $request, $code_salle)
+    {
+        $result = DB::select('CALL psList_EnteteCaisse(?)', [$code_salle]);
+        return response()->json($result);
+    }
 
 
-/* ************************************* 31/05/2024 ********************************************* */
+    /* ****************************************************** 31/05/2024 ****************************************************** */
+
+
+    /* ****************************************************** 01/06/2024 ****************************************************** */
+    public function caisseList(Request $request, $organisationID)
+    {
+        $salleList = DB::select('CALL psCaisse_List(?)', [$organisationID]);
+        return response()->json($salleList);
+    }
+    public function operationList(Request $request, $code_salle)
+    {
+        $operationList = DB::select('CALL psCaisse_Mouvement(?)', [$code_salle]);
+        return response()->json($operationList);
+    }
+
+    public function insertOperation(Request $request)
+    {
+        $data = $request->all();
+
+        DB::statement('CALL psCaisse_Crediter_Debiter(?,?,?,?,?)', [
+            $data['code_salle'],
+            $data['montant'],
+            $data['typeoperation'],
+            $data['userID'],
+            $data['username'],
+
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+    /* ****************************************************** 01/06/2024 ****************************************************** */
+
+    /* ****************************************************** 02/06/2024 ****************************************************** */
+    public function verifieTicket(Request $request, $codebarre, $code_salle)
+    {
+        $salleList = DB::select('CALL psTicket_SelectByCodebarre(?,?)', [$codebarre, $code_salle]);
+        return response()->json($salleList);
+    }
+    public function payer(Request $request)
+    {
+        $data = $request->all();
+
+        DB::statement('CALL psTicket_Payer(?,?)', [
+            $data['code_salle'],
+            $data['codebarre'],
+        ]);
+
+        return response()->json(['success' => true]);
+
+
+    }
+
+    public function tirage(Request $request, $code_salle, $dateDebut, $heureDebut)
+    {
+        $data = DB::select('CALL psTirage_Insert(?,?,?)', [$code_salle, $dateDebut, $heureDebut]);
+        return response()->json($data);
+    }
+
+    /* ****************************************************** 02/06/2024 ****************************************************** */
+
+
+
+    /* ****************************************************** 04/06/2024 ****************************************************** */
+    public function userInsert(Request $request)
+    {
+        $data = $request->all();
+        DB::statement('CALL psUsers_Insert(?,?,?,?,?,?,?,?,?,?)', [
+            $data['user_update'],
+            $data['nom'],
+            $data['organisationID'],
+            $data['login'],
+            $data['password'],
+            $data['profil'],
+            $data['code_salle'],
+            $data['telephone'],
+            $data['mail'],
+            $data['create_by'],
+        ]);
+        return response()->json(['success' => true]);
+    }
+    public function userList(Request $request, $organisationID, $userID)
+    {
+        $data = DB::select('CALL psUsers_List(?,?)', [$organisationID, $userID]);
+        return response()->json($data);
+    }
+    public function ticketList(Request $request)
+    {
+        $data = $request->all();
+        $ticketList = DB::select('CALL psTicket_List(?,?,?,?)',[
+            $data['organisationID'],
+            $data['code_salle'],
+            $data['datedebut'],
+            $data['datefin'],
+        ]);
+        return response()->json($ticketList);
+    }
+    public function userActive(Request $request, $userID, $action)
+    {
+        $data = DB::select('CALL psUsers_Active(?,?)', [$userID, $action]);
+        return response()->json(['success' => true]);
+    }
+    /* ************************************* 04/06/2024 ********************************************* */
+
 
 
 
@@ -910,7 +1013,8 @@ public function entetecaisse(Request $request, $code_salle)
     {
         $session = $request->all();
         DB::statement('CALL psAssiduite_Pointage(?,?)', [
-            $session['idauditeur'], $session['idcp']
+            $session['idauditeur'],
+            $session['idcp']
         ]);
 
         return response()->json(['success' => true]);

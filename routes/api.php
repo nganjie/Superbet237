@@ -49,10 +49,8 @@ Route::post('insertMise', [APIController::class, 'insertMise'])->name('insertMis
 
 /* ************************************* 31/05/2024 ********************************************* */
 
-Route::post('algorithmeDistribution', [APIController::class, 'algorithmeDistribution'])->name('algorithmeDistribution');
 Route::post('tirageInsert', [APIController::class, 'tirageInsert'])->name('tirageInsert');
-
-
+Route::get('algoD/{code_salle}/{tirageID}', [APIController::class, 'algorithmeDistribution']);
 Route::get('dernierstirages/{code_salle}', [APIController::class, 'dernierstirages']);
 Route::get('bouleslesplustirees/{code_salle}', [APIController::class, 'bouleslesplustirees']);
 Route::get('bouleslesmoinstirees/{code_salle}', [APIController::class, 'bouleslesmoinstirees']);
@@ -61,6 +59,32 @@ Route::get('entetecaisse/{code_salle}', [APIController::class, 'entetecaisse']);
 
 /* ************************************* 31/05/2024 ********************************************* */
 
+
+/* ************************************* 01/06/2024 ********************************************* */
+Route::get('caisseList/{organisationID}', [APIController::class, 'caisseList']);
+Route::get('operationList/{code_salle}', [APIController::class, 'operationList']);
+Route::post('insertOperation', [APIController::class, 'insertOperation'])->name('insertOperation');
+
+/* ************************************* 01/06/2024 ********************************************* */
+
+
+/* ************************************* 02/06/2024 ********************************************* */
+Route::get('verifieTicket/{codebarre}/{code_salle}', [APIController::class, 'verifieTicket']);
+Route::get('tirage/{code_salle}/{dateDebut}/{heureDebut}', [APIController::class, 'tirage']);
+Route::post('payer', [APIController::class, 'payer'])->name('payer');
+
+/* ************************************* 02/06/2024 ********************************************* */
+
+
+/* ************************************* 04/06/2024 ********************************************* */
+Route::get('userList/{organisationID}/{userID}', [APIController::class, 'userList']);
+Route::post('userInsert', [APIController::class, 'userInsert'])->name('userInsert');
+Route::post('ticketList', [APIController::class, 'ticketList'])->name('ticketList');
+/* ************************************* 04/06/2024 ********************************************* */
+
+/* ************************************* 05/06/2024 ********************************************* */
+Route::get('userActive/{userID}/{action}', [APIController::class, 'userActive']);
+/* ************************************* 05/06/2024 ********************************************* */
 
 
 //API Controller
