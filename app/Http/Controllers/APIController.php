@@ -23,6 +23,12 @@ use GuzzleHttp\Client;
 
 use Illuminate\Support\Collection;
 
+
+use App\Events\MessageSent;
+use Illuminate\Support\Facades\Broadcast;
+
+use Ratchet\ConnectionInterface;
+
 class APIController extends Controller
 {
 
@@ -37,6 +43,12 @@ class APIController extends Controller
         $salleList = DB::select('CALL psSalle_List(?)', [$organisationID]);
         return response()->json($salleList);
     }
+    public function enteteCaisse(Request $request, $code_salle)
+    {
+        $datas = DB::select('CALL psList_EnteteCaisse(?)', [$code_salle]);
+        return response()->json($datas);
+    }
+
     public function organisationInsert(Request $request)
     {
         $data = $request->all();
@@ -69,28 +81,104 @@ class APIController extends Controller
     {
         $data = $request->all();
 
+        if (isset($data['code_salle'])) {
+            $code_salle = $data['code_salle'];
+        } else {
+            $code_salle = null;
+        }
+        if (isset($data['date_cagnotte'])) {
+            $date_cagnotte = $data['date_cagnotte'];
+        } else {
+            $date_cagnotte = null;
+        }
+        if (isset($data['lots'])) {
+            $lots = $data['lots'];
+        } else {
+            $lots = null;
+        }
+        if (isset($data['actif'])) {
+            $actif = $data['actif'];
+        } else {
+            $actif = null;
+        }
+        if (isset($data['organisationID'])) {
+            $organisationID = $data['organisationID'];
+        } else {
+            $organisationID = null;
+        }
+        if (isset($data['userID'])) {
+            $userID = $data['userID'];
+        } else {
+            $userID = null;
+        }
+        if (isset($data['jackpot_min'])) {
+            $jackpot_min = $data['jackpot_min'];
+        } else {
+            $jackpot_min = null;
+        }
+        if (isset($data['jackpot_max'])) {
+            $jackpot_max = $data['jackpot_max'];
+        } else {
+            $jackpot_max = null;
+        }
+        if (isset($data['jackpot_rate'])) {
+            $jackpot_rate = $data['jackpot_rate'];
+        } else {
+            $jackpot_rate = null;
+        }
+        if (isset($data['montant_bonus'])) {
+            $montant_bonus = $data['montant_bonus'];
+        } else {
+            $montant_bonus = null;
+        }
+        if (isset($data['turn_over'])) {
+            $turn_over = $data['turn_over'];
+        } else {
+            $turn_over = null;
+        }
+        if (isset($data['cycle'])) {
+            $cycle = $data['cycle'];
+        } else {
+            $cycle = null;
+        }
+        if (isset($data['frequence'])) {
+            $frequence = $data['frequence'];
+        } else {
+            $frequence = null;
+        }
+        if (isset($data['megajackpot_min'])) {
+            $megajackpot_min = $data['megajackpot_min'];
+        } else {
+            $megajackpot_min = null;
+        }
+        if (isset($data['megajackpot_max'])) {
+            $megajackpot_max = $data['megajackpot_max'];
+        } else {
+            $megajackpot_max = null;
+        }
+        if (isset($data['megajackpot_rate'])) {
+            $megajackpot_rate = $data['megajackpot_rate'];
+        } else {
+            $megajackpot_rate = null;
+        }
         /* Turn-Over */
-        DB::statement('CALL psBonus_Insert(?,?,?,?,?,?,?,?,?,?,?,?)', [
-            $data['code_salle'],
-            $data['jackpot_min'],
-            $data['jackpot_max'],
-
-            $data['jackpot_rate'],
-            $data['megajackpot_min'],
-            $data['megajackpot_max'],
-
-            $data['megajackpot_rate'],
-            // $data['montant_bonus'],
-            $data['turn_over'],
-            $data['cycle'],
-
-            $data['organisationID'],
-            $data['userID'],
-            $data['frequence'],
-           
-           
-            //$data['lots'],
-            //$data['date_cagnotte'],
+        DB::statement('CALL psParametre_Update(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', [
+            $code_salle,
+            $date_cagnotte,
+            $lots,
+            $actif,
+            $organisationID,
+            $userID,
+            $jackpot_min,
+            $jackpot_max,
+            $jackpot_rate,
+            $montant_bonus,
+            $turn_over,
+            $cycle,
+            $frequence,
+            $megajackpot_min,
+            $megajackpot_max,
+            $megajackpot_rate,
         ]);
 
         return response()->json(['success' => true]);
@@ -101,7 +189,7 @@ class APIController extends Controller
     {
         $data = $request->all();
 
-        $code = DB::select('CALL psTicket_Insert(?,?,?,?,?,?,?)', [
+        $code = DB::select('CALL psTicket_Insert(?,?,?,?,?,?,?,?)', [
             $data['code_salle'],
             $data['code_option'],
             $data['montant'],
@@ -109,6 +197,7 @@ class APIController extends Controller
             $data['userID'],
             $data['boules'],
             $data['avecmultiplicateur'],
+            $data['code_couleur'],
 
         ]);
 
@@ -162,11 +251,11 @@ class APIController extends Controller
         return response()->json($result);
     }
 
-    public function entetecaisse(Request $request, $code_salle)
+    /* public function entetecaisse(Request $request, $code_salle)
     {
         $result = DB::select('CALL psList_EnteteCaisse(?)', [$code_salle]);
         return response()->json($result);
-    }
+    } */
 
 
     /* ****************************************************** 31/05/2024 ****************************************************** */
@@ -217,8 +306,6 @@ class APIController extends Controller
         ]);
 
         return response()->json(['success' => true]);
-
-
     }
 
     public function tirage(Request $request, $code_salle, $dateDebut, $heureDebut)
@@ -241,7 +328,7 @@ class APIController extends Controller
             $data['organisationID'],
             $data['login'],
             $data['password'],
-            $data['profil'],
+            $data['profilID'],
             $data['code_salle'],
             $data['telephone'],
             $data['mail'],
@@ -254,10 +341,15 @@ class APIController extends Controller
         $data = DB::select('CALL psUsers_List(?,?)', [$organisationID, $userID]);
         return response()->json($data);
     }
+    public function tirages(Request $request, $organisationID, $code_salle)
+    {
+        $data = DB::select('CALL psTirage_List(?,?)', [$organisationID, $code_salle]);
+        return response()->json($data);
+    }
     public function ticketList(Request $request)
     {
         $data = $request->all();
-        $ticketList = DB::select('CALL psTicket_List(?,?,?,?)',[
+        $ticketList = DB::select('CALL psTicket_List(?,?,?,?)', [
             $data['organisationID'],
             $data['code_salle'],
             $data['datedebut'],
@@ -270,17 +362,89 @@ class APIController extends Controller
         $data = DB::select('CALL psUsers_Active(?,?)', [$userID, $action]);
         return response()->json(['success' => true]);
     }
+    public function cycleMouvement(Request $request, $organisationID, $code_salle)
+    {
+        $data = DB::select('CALL psCycle_Mouvement(?,?)', [$organisationID, $code_salle]);
+        return response()->json($data);
+    }
+    public function synchro(Request $request, $code_salle)
+    {
+        $data = DB::select('CALL psSalleSync_Select(?)', [$code_salle]);
+        return response()->json($data);
+    }
+    public function salleSynchUpdate(Request $request, $code_salle)
+    {
+        $data = DB::select('CALL psSalleSync_Update(?)', [$code_salle]);
+        return response()->json($data);
+    }
+    public function repAlgoList(Request $request, $code_salle)
+    {
+        $data = DB::select('CALL psRepAlgo_List(?)', [$code_salle]);
+        return response()->json($data);
+    }
     /* ************************************* 04/06/2024 ********************************************* */
 
 
+    public function sendMessage(Request $request)
+    {
+        $message = $request->input('message');
+        broadcast(new MessageSent($message));
+
+        return response()->json(['status' => 'Message sent!']);
+    }
+
+    public function sendData(Request $request)
+    {
+        $data = $request->input('data'); // Récupérer les données de la requête
+
+        // Émettre l'événement avec les données
+        event(new MessageSent($data));
+
+        return response()->json(['status' => 'Data sent!']);
+    }
+
+
+    public function onMessage(ConnectionInterface $from, $msg)
+    {
+        $keyword = json_decode($msg)->keyword ?? '';
+        try {
+            $result = DB::select('CALL nom_de_votre_procedure(?)', [$keyword]);
+            $from->send(json_encode($result));
+        } catch (\Exception $e) {
+            echo "Erreur de la base de données : " . $e->getMessage();
+            $from->send(json_encode(['error' => 'Database error: ' . $e->getMessage()]));
+        }
+    }
+
+
+   /*  public function sendMessage(Request $request)
+    {
+        $message = $request->input('message');
+        broadcast(new MessageSent($message))->toOthers();
+        return response()->json(['status' => 'Message sent!']);
+    } */
 
 
 
 
 
 
-
-
+    public function jeuxLogin(Request $request, $cle)
+    {
+        $data = DB::select('CALL psJeux_Login(?)', [$cle]);
+        return response()->json($data);
+    }
+    public function jeuxAcces(Request $request, $token)
+    {
+        $data = DB::select('CALL psJeux_Acces(?)', [$token]);
+        return response()->json($data);
+    }
+    public function jeuxLogout(Request $request, $token)
+    {
+        $data = DB::select('CALL psJeux_Logout(?)', [$token]);
+        return response()->json($data);
+    }
+  
 
 
 

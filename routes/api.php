@@ -50,12 +50,17 @@ Route::post('insertMise', [APIController::class, 'insertMise'])->name('insertMis
 /* ************************************* 31/05/2024 ********************************************* */
 
 Route::post('tirageInsert', [APIController::class, 'tirageInsert'])->name('tirageInsert');
+
 Route::get('algoD/{code_salle}/{tirageID}', [APIController::class, 'algorithmeDistribution']);
 Route::get('dernierstirages/{code_salle}', [APIController::class, 'dernierstirages']);
 Route::get('bouleslesplustirees/{code_salle}', [APIController::class, 'bouleslesplustirees']);
 Route::get('bouleslesmoinstirees/{code_salle}', [APIController::class, 'bouleslesmoinstirees']);
 Route::get('derniersmultiplicateurs/{code_salle}', [APIController::class, 'derniersmultiplicateurs']);
-Route::get('entetecaisse/{code_salle}', [APIController::class, 'entetecaisse']);
+Route::get('cycleMouvement/{organisationID}/{code_salle}', [APIController::class, 'cycleMouvement']);
+Route::get('salleSynchUpdate/{code_salle}', [APIController::class, 'salleSynchUpdate']);
+Route::get('synchro/{code_salle}', [APIController::class, 'synchro']);
+Route::get('repAlgoList/{code_salle}', [APIController::class, 'repAlgoList']);
+// Route::get('entetecaisse/{code_salle}', [APIController::class, 'entetecaisse']);
 
 /* ************************************* 31/05/2024 ********************************************* */
 
@@ -85,6 +90,41 @@ Route::post('ticketList', [APIController::class, 'ticketList'])->name('ticketLis
 /* ************************************* 05/06/2024 ********************************************* */
 Route::get('userActive/{userID}/{action}', [APIController::class, 'userActive']);
 /* ************************************* 05/06/2024 ********************************************* */
+
+/* ************************************* 23/06/2024 ********************************************* */
+Route::get('enteteCaisse/{code_salle}', [APIController::class, 'enteteCaisse']);
+Route::get('tirages/{organisationID}/{code_salle}', [APIController::class, 'tirages']);
+/* ************************************* 23/06/2024 ********************************************* */
+
+Route::get('message', [APIController::class, 'onMessage']);
+
+
+
+Route::get('jeuxLogin/{cle}', [APIController::class, 'jeuxLogin']);
+Route::get('jeuxAcces/{token}', [APIController::class, 'jeuxAcces']);
+Route::get('jeuxLogout/{token}', [APIController::class, 'jeuxLogout']);
+
+/* Route::post('/send-data2', [APIController::class, 'sendData']);
+
+Route::post('/send-data', [APIController::class, 'onMessage']); */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //API Controller
