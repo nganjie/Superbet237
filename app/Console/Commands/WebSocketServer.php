@@ -24,10 +24,12 @@ class WebSocketServer implements MessageComponentInterface
         $this->loop = Loop::get();
     }
 
-    /*  public function onOpen(ConnectionInterface $conn) {
+    /*  
+    public function onOpen(ConnectionInterface $conn) {
         $this->clients->attach($conn);
         echo "New connection! ({$conn->resourceId})\n";
-    } */
+    } 
+    */
 
     // Lorsque la connexion est établie
     public function onOpen(ConnectionInterface $conn)
@@ -47,6 +49,12 @@ class WebSocketServer implements MessageComponentInterface
         if (isset($type)) {
             echo "Type en cours d'exécution ===> ({$type})\n";
             switch ($type) {
+                case 'pari-types':
+                    $this->repAlgoList($from, $code_salle);
+                    break;
+                case 'stat-page':
+                    $this->fnStatPage($from, $code_salle);
+                    break;
                 case 'algoD':
                     $this->algoD($from, $code_salle, $tirageID);
                     echo "Mon tirage ===> ({$tirageID})\n";
@@ -85,6 +93,24 @@ class WebSocketServer implements MessageComponentInterface
             }
             // Synchronisez l'état de la salle avec le code reçu
             $this->syncSalleState($from, $code_salle);
+        }
+    }
+
+    private function fnStatPage(ConnectionInterface $conn, $code_salle)
+    {
+        try {
+            $result1 = DB::select('CALL psRepAlgo_List(?)', [$code_salle]);
+            $result2 = DB::select('CALL psList_DerniersTirage(?)', [$code_salle]);
+            $result3 = DB::select('CALL psList_BoulesLesPlusTirees(?)', [$code_salle]);
+            $result4 = DB::select('CALL psList_BoulesLesMoinsTirees(?)', [$code_salle]);
+            $result5 = DB::select('CALL psList_DerniersMultiplicateurs(?)', [$code_salle]);
+            $conn->send(json_encode(['rep_algo' => $result1,
+                                     'derniers_tirages' => $result2,
+                                     'lesplus_tirees' => $result3,
+                                     'lesmoins_tirees' => $result4,
+                                     'derniers_mult' => $result5,]));
+        } catch (\Exception $e) {
+            $conn->send(json_encode(['error' => $e->getMessage()]));
         }
     }
 
@@ -205,9 +231,6 @@ class WebSocketServer implements MessageComponentInterface
         echo "An error has occurred: {$e->getMessage()}\n";
         $conn->close();
     }
-
-
-
 
 
     // Méthode pour exécuter la procédure stockée et envoyer les résultats
