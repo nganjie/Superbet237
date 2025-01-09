@@ -46,14 +46,15 @@ class WebSocketServer implements MessageComponentInterface
         $code_salle = $data['code_salle'];
         $token = $data['token'];
         $type = $data['type'];
+        $chrono_salle=$data['chrono_salle'];
         if (isset($type)) {
             echo "Type en cours d'exécution ===> ({$type})\n";
             switch ($type) {
                 case 'pari-types':
-                    $this->repAlgoList($from, $code_salle);
+                    $this->repAlgoList($from, $code_salle,$chrono_salle);
                     break;
                 case 'stat-page':
-                    $this->fnStatPage($from, $code_salle);
+                    $this->fnStatPage($from, $code_salle,$chrono_salle);
                     break;
                 case 'algoD':
                     $this->algoD($from, $code_salle, $tirageID);
@@ -81,7 +82,7 @@ class WebSocketServer implements MessageComponentInterface
                     $this->synchro($from, $code_salle);
                     break;
                 case 'repAlgoList':
-                    $this->repAlgoList($from, $code_salle);
+                    $this->repAlgoList($from, $code_salle,$chrono_salle);
                     break;
                 case 'jeuxAcces':
                     $this->jeuxAcces($from, $token);
@@ -96,9 +97,11 @@ class WebSocketServer implements MessageComponentInterface
         }
     }
 
-    private function fnStatPage(ConnectionInterface $conn, $code_salle)
+    private function fnStatPage(ConnectionInterface $conn, $code_salle,$chrono_salle)
     {
         try {
+            $param=$code_salle.'-'.$chrono_salle;
+            DB::statement('CALL psSalleSync_Update(?)',[$param]);
             $result1 = DB::select('CALL psRepAlgo_List(?)', [$code_salle]);
             $result2 = DB::select('CALL psList_DerniersTirage(?)', [$code_salle]);
             $result3 = DB::select('CALL psList_BoulesLesPlusTirees(?)', [$code_salle]);
@@ -187,16 +190,19 @@ class WebSocketServer implements MessageComponentInterface
     private function synchro(ConnectionInterface $conn, $code_salle)
     {
         try {
-            $results = DB::select('CALL psSalleSync_Select(?)', [$code_salle]);
-            $conn->send(json_encode($results));
+            $result1 = DB::select('CALL psSalleSync_Select(?)', [$code_salle]);
+            $result2 = DB::select('CALL psList_EnteteCaisse(?)', [$code_salle]);
+            $conn->send(json_encode(['chrono_salle' => $result1,'entete' => $result2]));
         } catch (\Exception $e) {
             $conn->send(json_encode(['error' => $e->getMessage()]));
         }
     }
 
-    private function repAlgoList(ConnectionInterface $conn, $code_salle)
+    private function repAlgoList(ConnectionInterface $conn, $code_salle, $chrono_salle)
     {
         try {
+            $param=$code_salle.'-'.$chrono_salle;
+            DB::statement('CALL psSalleSync_Update(?)',[$param]);
             $results = DB::select('CALL psRepAlgo_List(?)', [$code_salle]);
             $conn->send(json_encode($results));
         } catch (\Exception $e) {
