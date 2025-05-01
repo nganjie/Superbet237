@@ -41,7 +41,8 @@ class WebSocketServer implements MessageComponentInterface
 
     public function onMessage(ConnectionInterface $from, $msg)
     {
-        $data = json_decode($msg, true);
+        try{
+            $data = json_decode($msg, true);
         $tirageID = $data['tirageID'];
         $code_salle = $data['code_salle'];
         $token = $data['token'];
@@ -95,6 +96,11 @@ class WebSocketServer implements MessageComponentInterface
             // Synchronisez l'état de la salle avec le code reçu
             $this->syncSalleState($from, $code_salle);
         }
+        }catch (\Exception $e) {
+            echo "Erreur de connexion : {$e->getMessage()}\n";
+            return;
+        }
+        
     }
 
     private function fnStatPage(ConnectionInterface $conn, $code_salle,$chrono_salle)
