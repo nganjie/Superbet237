@@ -232,6 +232,11 @@ Route::post('saveProfil', [APIController::class, 'saveProfil'])->name('saveProfi
 Route::post('sendcodesms', [APIController::class, 'sendcodesms'])->name('sendcodesms');
 Route::post('coursProgrammeValider', [APIController::class, 'coursProgrammeValider'])->name('coursProgrammeValider');
 
+Route::post('tikestsBySalle', [APIController::class, 'tikestsBySalle'])->name('tikestsBySalle');
+Route::get('tiragesBySalle/{organisationID}/{code_salle}', [APIController::class, 'tiragesBySalle']);
+Route::get('tikestsBySalle', [APIController::class, 'tikestsBySalle']);
+Route::get('cyclesBySalle/{organisationID}/{code_salle}', [APIController::class, 'cyclesBySalle']);
+
 
 
 

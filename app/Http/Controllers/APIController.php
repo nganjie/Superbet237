@@ -1916,6 +1916,33 @@ class APIController extends Controller
         });
 
         return response()->json($decryptedAuditeurs);
-    } //----------------------------------------------------------------------------------------
+    } 
+
+
+
+
+    
+    public function tiragesBySalle($organisationID, $code_salle)
+    {
+        $data = DB::select('CALL psTirage_List(?,?)', [$organisationID, $code_salle]);
+        return response()->json($data);
+    }
+
+    public function tikestsBySalle(Request $request)
+    {
+        $organisationID = $request->input('organisationID');
+        $code_salle = $request->input('code_salle');
+        $datedebut = $request->input('datedebut');
+        $datefin = $request->input('datefin');
+        $data = DB::select('CALL psTicket_List(?,?,?,?)', [$organisationID, $code_salle, $datedebut, $datefin]);
+        return response()->json($data);
+    }
+
+    public function cyclesBySalle($organisationID, $code_salle)
+    {
+        $data = DB::select('CALL psCycle_Mouvement(?,?)', [$organisationID, $code_salle]);
+        return response()->json($data);
+    }
+
 
 }
