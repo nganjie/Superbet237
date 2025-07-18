@@ -26,9 +26,10 @@ class WebSocketServer implements MessageComponentInterface
     public function onMessage(ConnectionInterface $from, $msg)
     {
         // Suppose que le message contienne un mot clé pour la procédure  
-        $keyword = json_decode($msg)->keyword ?? '';
+        
 
         try {
+            $keyword = json_decode($msg)->keyword ?? '';
             // Appeler la procédure stockée  
             $result = DB::select('CALL nom_de_votre_procedure(?)', [$keyword]);
 

@@ -327,7 +327,7 @@ class APIController extends Controller
             $data['nom'],
             $data['organisationID'],
             $data['login'],
-            $data['password'],
+            $data['pasword'],
             $data['profilID'],
             $data['code_salle'],
             $data['telephone'],
