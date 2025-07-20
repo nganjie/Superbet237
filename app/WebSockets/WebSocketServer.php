@@ -17,7 +17,7 @@ class WebSocketServer implements MessageComponentInterface
 
     public function onOpen(ConnectionInterface $conn)
     {
-        $conn->httpRequest->headers->set('Access-Control-Allow-Origin', 'http://localhost:4200');
+        $conn->httpRequest->headers->set('Access-Control-Allow-Origin', '*');
         $this->clients->attach($conn);
         echo "Nouveau client connecté : ({$conn->resourceId})\n";
     }
