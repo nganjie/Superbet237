@@ -46,6 +46,8 @@ class APIController extends Controller
     public function enteteCaisse(Request $request, $code_salle)
     {
         $datas = DB::select('CALL psList_EnteteCaisse(?)', [$code_salle]);
+        $result2 = DB::select('CALL psList_EnteteCaisse(?)', [$code_salle]);
+            $conn->send(json_encode(['chrono_salle' => $result1,'entete' => $result2]));
         return response()->json($datas);
     }
 
@@ -369,8 +371,9 @@ class APIController extends Controller
     }
     public function synchro(Request $request, $code_salle)
     {
-        $data = DB::select('CALL psSalleSync_Select(?)', [$code_salle]);
-        return response()->json($data);
+        $result1 = DB::select('CALL psSalleSync_Select(?)', [$code_salle]);
+        $result2 = DB::select('CALL psList_EnteteCaisse(?)', [$code_salle]);
+        return response()->json_encode(['chrono_salle' => $result1,'entete' => $result2]);
     }
     public function salleSynchUpdate(Request $request, $code_salle)
     {
