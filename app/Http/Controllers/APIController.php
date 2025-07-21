@@ -373,7 +373,7 @@ class APIController extends Controller
     {
         $result1 = DB::select('CALL psSalleSync_Select(?)', [$code_salle]);
         $result2 = DB::select('CALL psList_EnteteCaisse(?)', [$code_salle]);
-        return response()->json_encode(['chrono_salle' => $result1,'entete' => $result2]);
+        return response()->json(['chrono_salle' => $result1,'entete' => $result2]);
     }
     public function salleSynchUpdate(Request $request, $code_salle)
     {
